@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import logo from '../assets/logo.svg';
+import logo from '../assets/handmade_logo.png';
 import { FaUserCircle, FaCaretDown } from 'react-icons/fa';
 import { useGlobalContext } from '../context/appContext';
 
@@ -10,7 +10,7 @@ const Navbar = () => {
   return (
     <Wrapper>
       <div className='nav-center'>
-        <img src={logo} alt='jobs app' />
+        <img src={logo} alt='handmade logo' />
         {user && (
           <div className='btn-container'>
             <button className='btn' onClick={() => setShowLogout(!showLogout)}>
