@@ -36,6 +36,11 @@ const Wrapper = styled.nav`
   justify-content: center;
   align-items: center;
 
+  img {
+    width:120px;
+    height:60px;
+  }
+
   .nav-center {
     width: var(--fluid-width);
     max-width: var(--max-width);
