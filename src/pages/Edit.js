@@ -4,12 +4,177 @@ import styled from 'styled-components';
 import { useGlobalContext } from '../context/appContext';
 import FormRow from '../components/FormRow';
 import Navbar from '../components/Navbar';
-function Update() {
 
+function Update() {
+  const { id } = useParams();
+  const {
+    isLoading,
+    editItem,
+    fetchSingleProduct,
+    singleProductError: error,
+    user,
+    editProduct,
+    message,
+    showAlert
+  } = useGlobalContext();
+
+  const [values, setValues] = useState({
+    name: '',
+    price: 0,
+    description: '',
+    image: '',
+    company: '',
+    category: '',
+    featured: '',
+    freeShipping: '',
+    inventory: '',
+    averageRating: 0,
+    createdAt: ''
+  });
+
+  useEffect(() => {
+    fetchSingleProduct(id);
+  }, [id]);
+
+  useEffect(() => {
+    if (editItem) {
+      setValues({
+        ...editItem
+      });
+    }
+  }, [editItem]);
+
+  const handleChange = (e) => {
+    if (e.target.type === 'checkbox') {
+      setValues({ ...values, [e.target.name]: e.target.checked });
+    } else {
+      setValues({ ...values, [e.target.name]: e.target.value });
+    }
+  };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    editProduct(id, {
+      ...values
+    });
+
+  };
+  if (isLoading && !editItem) {
+    return <div className='loading'></div>;
+  }
+
+  if (!editItem || error) {
+    return (
+      <>
+        {!user && <Redirect to='/' />}
+        <ErrorContainer className='page'>
+          <h5>There was an error, please double check your product ID</h5>
+
+          <Link to='/dashboard' className='btn'>
+            dasboard
+          </Link>
+        </ErrorContainer>
+      </>
+    );
+  }
   return (
     <>
+      {!user && <Redirect to='/' />}
+      <Navbar />
       <Container className='page'>
+        <header>
+          <Link to='/dashboard' className='btn btn-block back-home'>
+            back home
+          </Link>
+        </header>
+        {showAlert && (
+          <div className='alert alert-danger'>
+            {message}
+          </div>
+        )}
+        <form className='form' onSubmit={handleSubmit}>
+          {/* <p>{editComplete && 'Success! Edit Complete'}</p> */}
+          <h4>Update Product</h4>
+          {/* company */}
+          <div className='form-container'>
+            <FormRow
+              type='name'
+              name='name'
+              value={values.name}
+              handleChange={handleChange}
+            />
+            <FormRow
+              type='number'
+              name='price'
+              value={values.price}
+              handleChange={handleChange}
+            />
 
+            <FormRow
+              type='number'
+              name='inventory'
+              value={values.inventory}
+              handleChange={handleChange}
+            />
+
+            <div className='form-row'>
+              <label htmlFor='category' className='form-label'>
+                Category
+              </label>
+              <select
+                name='category'
+                value={values.category}
+                onChange={handleChange}
+                className='status'
+              >
+                <option value="home" selected>home</option>
+                <option value="Dining" >Dining</option>
+                <option value="bedroom">bedroom</option>
+                <option value="Living Room">Handmade Mugs</option>
+              </select>
+            </div>
+            <div className='form-row'>
+              <label htmlFor="Featured">Featured ? <br /></label>
+              <input type="checkbox" name="featured" checked={values.featured} onClick={handleChange} />
+            </div>
+            <div>
+              <label for="freeShipping">Free Shipping ? <br /></label>
+              <input type="checkbox" name="freeShipping" checked={values.freeShipping} onClick={handleChange} />
+            </div>
+            <div>
+              <label htmlFor="company">Company <br /></label>
+              <select
+                value={values.company}
+                id='company'
+                onChange={handleChange}
+                name="company"
+                className='status'>
+                <option value="Handmade" selected>Handmade</option>
+                <option value="Handmade Pots" >Handmade Pots</option>
+                <option value="Handmade Bed & Bath">Handmade Bed & Bath</option>
+                <option value="Handmade Mugs">Handmade Mugs</option>
+              </select>
+            </div>
+            <br />
+
+            <div>
+              <label htmlFor="company">Company <br /></label>
+              <textarea
+                name="description"
+                rows="5"
+                value={values.description}
+                onChange={handleChange}
+                cols="40">
+              </textarea>
+            </div>
+            <button
+              type='submit'
+              className='btn btn-block submit-btn'
+              disabled={isLoading}
+            >
+              {isLoading ? 'Editing...' : 'Edit'}
+            </button>
+          </div>
+        </form>
       </Container>
     </>
   );
@@ -62,8 +227,9 @@ const Container = styled.section`
     }
     .form-container {
       display: grid;
-      grid-template-columns: 1fr 1fr 100px auto;
-      column-gap: 0.5rem;
+      grid-template-columns: 200px  150px  150px;
+      column-gap: 1.5rem;
+      row-gap:1.5rem;
       align-items: center;
     }
 

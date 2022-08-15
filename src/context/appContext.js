@@ -27,7 +27,7 @@ const initialState = {
   editItem: null,
   singleProductError: false,
   editComplete: false,
-  errorMessage: ''
+  message: ''
 }
 const AppContext = React.createContext()
 
@@ -40,21 +40,26 @@ const AppProvider = ({ children }) => {
 
   // register
   const register = async (userInput) => {
-    //setLoading();
+    setLoading();
     try {
-      const { data } = await axios.post(`http://localhost:5000/api/v1/auth/register`,
+      const { data } = await axios.post(`/auth/register`,
         {
           ...userInput,
         })
 
       dispatch({ type: REGISTER_USER_SUCCESS, payload: data.user.name })
+
       localStorage.setItem(
         'user',
         JSON.stringify({ name: data.user.name, token: data.token })
       )
     } catch (error) {
+      if (error.response) {
+        // ✅ log status code here
 
-      dispatch({ type: REGISTER_USER_ERROR })
+      }
+
+      dispatch({ type: REGISTER_USER_ERROR, payload: error.response.data.msg })
     }
   }
 
@@ -62,10 +67,12 @@ const AppProvider = ({ children }) => {
   const login = async (userInput) => {
     setLoading()
     try {
-      const { data } = await axios.post(`http://localhost:5000/api/v1/auth/login`, {
+      const { data } = await axios.post(`/auth/login`, {
         ...userInput,
       })
+
       dispatch({ type: REGISTER_USER_SUCCESS, payload: data.user.name })
+
       localStorage.setItem(
         'user',
         JSON.stringify({ name: data.user.name, token: data.token })
@@ -86,7 +93,7 @@ const AppProvider = ({ children }) => {
   const fetchProducts = async () => {
     setLoading()
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/v1/products`)
+      const { data } = await axios.get(`/products`)
       console.log(data);
       dispatch({ type: FETCH_PRODUCTS_SUCCESS, payload: data.products })
     } catch (error) {
@@ -97,14 +104,11 @@ const AppProvider = ({ children }) => {
 
   // create product
   const createProduct = async (userInput) => {
-    console.log("..... user input  ");
-    console.log(userInput);
-    //fetchProducts();
     userInput.user = '62f3c2248122d2951aa7c51e';
 
     setLoading()
     try {
-      const { data } = await axios.post(`http://localhost:5000/api/v1/products`, {
+      const { data } = await axios.post(`/products`, {
         ...userInput
       })
 
@@ -121,17 +125,53 @@ const AppProvider = ({ children }) => {
     }
   }
   const deleteProduct = async (productId) => {
-    setLoading()
-    try {
-      await axios.delete(`http://localhost:5000/api/v1/products/${productId}`)
+    setLoading();
 
+    try {
+      await axios.delete(`/products/${productId}`)
       fetchProducts()
     } catch (error) {
-      dispatch({ type: DELETE_PRODUCT_ERROR })
+      if (error.response) {
+        // ✅ log status code here
+        console.log(error.response.status);
+        console.log(error.message);
+        console.log(error.response.headers); // 👉️ {... response headers here}
+        console.log(error.response.data); // 👉️ {... response data here}
+      }
+
+      dispatch({ type: DELETE_PRODUCT_ERROR, payload: error.response.data.msg })
     }
   }
 
-  // single products
+  // single product
+  const fetchSingleProduct = async (productId) => {
+    setLoading()
+    try {
+      const { data } = await axios.get(`/products/${productId}`)
+      dispatch({ type: FETCH_SINGLE_PRODUCT_SUCCESS, payload: data.product })
+    } catch (error) {
+      dispatch({ type: FETCH_SINGLE_PRODUCT_ERROR, payload: error.response.data.msg })
+
+    }
+  }
+  const editProduct = async (productId, userInput) => {
+    setLoading()
+    try {
+      const { data } = await axios.patch(`/products/${productId}`, {
+        ...userInput,
+      })
+      dispatch({ type: EDIT_PRODUCT_SUCCESS, payload: data.product })
+    } catch (error) {
+      if (error.response) {
+        // ✅ log status code here
+        console.log(error.response.status);
+        console.log(error.message);
+        console.log(error.response.headers); // 👉️ {... response headers here}
+        console.log(error.response.data); // 👉️ {... response data here}
+      }
+      dispatch({ type: EDIT_PRODUCT_ERROR, payload: error.response.data.msg })
+    }
+  }
 
   useEffect(() => {
     const user = localStorage.getItem('user')
@@ -150,7 +190,9 @@ const AppProvider = ({ children }) => {
         logout,
         createProduct,
         fetchProducts,
-        deleteProduct
+        deleteProduct,
+        fetchSingleProduct,
+        editProduct
       }}
     >
       {children}

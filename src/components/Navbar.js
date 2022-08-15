@@ -5,7 +5,7 @@ import { FaUserCircle, FaCaretDown } from 'react-icons/fa';
 import { useGlobalContext } from '../context/appContext';
 
 const Navbar = () => {
-  const { user, logout } = useGlobalContext();
+  const { user, logout, showAlert, message } = useGlobalContext();
   const [showLogout, setShowLogout] = useState(false);
   return (
     <Wrapper>

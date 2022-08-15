@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useGlobalContext } from '../context/appContext';
 import FormRow from '../components/FormRow';
 import Navbar from '../components/Navbar';
-import Products from '../components/products';
+import Products from '../components/Products';
 
 function Dashboard() {
   const [values, setValues] = useState({
@@ -22,16 +22,14 @@ function Dashboard() {
 
   const handleChange = (e) => {
     if (e.target.type === 'checkbox') {
-
       setValues({ ...values, [e.target.name]: e.target.checked });
     } else {
       setValues({ ...values, [e.target.name]: e.target.value });
-
     }
 
   };
 
-  const { isLoading, showAlert, fetchProducts, createProduct, errorMessage } = useGlobalContext();
+  const { isLoading, showAlert, fetchProducts, createProduct, message, user } = useGlobalContext();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -48,13 +46,13 @@ function Dashboard() {
       <Wrapper className='page'>
         {showAlert && (
           <div className='alert alert-danger'>
-            {errorMessage}
+            {message}
           </div>
         )}
         <h2>Product</h2>
 
         <form className='job-form' onSubmit={handleSubmit}>
-
+          User: {user}
           {/* name */}
           <FormRow
             type='name'
@@ -113,9 +111,9 @@ function Dashboard() {
               onChange={handleChange}
             >
               <option value="home" selected>home</option>
-              <option value="Dining" >Dining</option>
+              <option value="dinig" >dinning</option>
               <option value="bedroom">bedroom</option>
-              <option value="Living Room">Handmade Mugs</option>
+              <option value="living room">living room</option>
             </select>
           </div>
 
@@ -148,6 +146,7 @@ function Dashboard() {
             {isLoading ? 'Adding New Product...' : 'Add Product'}
           </button>
         </form>
+        <Products />
 
         {/* <Products /> */}
       </Wrapper>

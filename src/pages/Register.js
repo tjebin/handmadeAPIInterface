@@ -13,7 +13,7 @@ function Register() {
     isMember: true,
   });
 
-  const { user, register, login, isLoading, showAlert } = useGlobalContext();
+  const { user, register, login, isLoading, showAlert, message } = useGlobalContext();
   const toggleMember = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
@@ -38,7 +38,7 @@ function Register() {
         <div className='container'>
           {showAlert && (
             <div className='alert alert-danger'>
-              there was an error, please try again
+              {message}
             </div>
           )}
           <form className='form' onSubmit={onSubmit}>

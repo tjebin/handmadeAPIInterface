@@ -1,19 +1,27 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const JobColumns = () => {
+const ProductColumns = () => {
   return (
-    <Wrapper>
-      <span>position</span>
+    <WrapperColumn>
+      <span>name</span>
+      <span>price</span>
+      <span>description</span>
+      <span>image</span>
       <span>company</span>
-      <span>date</span>
-      <span>status</span>
+      <span>category</span>
+      <span>featured</span>
+      <span>free shipping?</span>
+      <span>inevtory</span>
+      <span>rating</span>
+      <span>created at</span>
       <span className='action'>action</span>
-    </Wrapper>
+    </WrapperColumn>
   );
 };
 
-const Wrapper = styled.section`
+
+const WrapperColumn = styled.section`
   display: none;
   @media (min-width: 992px) {
     display: block;
@@ -22,7 +30,7 @@ const Wrapper = styled.section`
     border-top-left-radius: var(--borderRadius);
     border-top-right-radius: var(--borderRadius);
     display: grid;
-    grid-template-columns: 1fr 1fr 150px 100px 100px;
+    grid-template-columns: 1fr 1fr  1fr 1fr  1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     align-items: center;
     padding: 1rem 1.5rem;
     column-gap: 1rem;
@@ -36,4 +44,4 @@ const Wrapper = styled.section`
   }
 `;
 
-export default JobColumns;
+export default ProductColumns;

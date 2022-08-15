@@ -17,8 +17,7 @@ import {
 
 const reducer = (state, action) => {
     if (action.type === SET_LOADING) {
-
-        return { ...state, isLoading: true, showAlert: false, editComplete: false, errorMessage: '' }
+        return { ...state, isLoading: true, showAlert: false, editComplete: false, message: '' }
     }
 
     // user
@@ -27,6 +26,8 @@ const reducer = (state, action) => {
             ...state,
             isLoading: false,
             user: action.payload,
+            showAlert: true,
+            message: 'Successfully Registered'
         }
     }
     if (action.type === REGISTER_USER_ERROR) {
@@ -35,6 +36,7 @@ const reducer = (state, action) => {
             isLoading: false,
             user: null,
             showAlert: true,
+            message: action.payload
         }
     }
 
@@ -49,7 +51,7 @@ const reducer = (state, action) => {
             products: [],
             isEditing: false,
             editItem: null,
-            errorMessage: ''
+            message: ''
         }
     }
 
@@ -59,10 +61,10 @@ const reducer = (state, action) => {
         return {
             ...state,
             isLoading: false,
-            errorMessage: '',
             editItem: null,
             singleProductError: false,
             editComplete: false,
+            showAlert: false,
             products: action.payload,
         }
     }
@@ -73,19 +75,17 @@ const reducer = (state, action) => {
         return {
             ...state,
             isLoading: false,
-            errorMessage: 'Success',
+            message: 'Product Successfully Created',
             showAlert: true,
             products: [...state.products, action.payload],
         }
     }
     if (action.type === CREATE_PRODUCT_ERROR) {
-        alert(action.payload);
-
         return {
             ...state,
             isLoading: false,
             showAlert: true,
-            errorMessage: action.payload
+            message: action.payload
         }
     }
 
@@ -94,30 +94,41 @@ const reducer = (state, action) => {
             ...state,
             isLoading: false,
             showAlert: true,
+            message: action.payload
         }
     }
 
     if (action.type === FETCH_SINGLE_PRODUCT_SUCCESS) {
-        return { ...state, isLoading: false, editItem: action.payload, errorMessage: '' }
+        return { ...state, isLoading: false, editItem: action.payload }
     }
     if (action.type === FETCH_SINGLE_PRODUCT_ERROR) {
-        return { ...state, isLoading: false, editItem: '', singleProductError: true }
+        return {
+            ...state,
+            isLoading: false,
+            editItem: '',
+            singleProductError: true,
+            showAlert: true,
+            message: action.payload
+        }
     }
 
     if (action.type === EDIT_PRODUCT_SUCCESS) {
+
         return {
             ...state,
             isLoading: false,
             editComplete: true,
             editItem: action.payload,
+            showAlert: true,
+            message: 'Edit Success'
         }
     }
     if (action.type === EDIT_PRODUCT_ERROR) {
         return {
             ...state,
             isLoading: false,
-            editComplete: true,
             showAlert: true,
+            message: action.payload
         }
     }
 
