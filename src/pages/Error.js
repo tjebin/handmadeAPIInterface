@@ -5,7 +5,10 @@ import img from '../assets/not-found.png';
 const Error = () => {
   return (
     <Wrapper className='page full-page'>
-
+      <div>
+        <img src={img} alt="not_found" />
+        <p><Link to="/dashboard"> To Dashboard</Link></p>
+      </div>
     </Wrapper>
   );
 };
@@ -20,18 +23,13 @@ const Wrapper = styled.main`
   display: flex;
   align-items: center;
   justify-content: center;
-  h3 {
-    margin-bottom: 0.5rem;
-  }
+  
   p {
     margin-top: 0;
     margin-bottom: 0.5rem;
     color: var(--grey-500);
   }
-  a {
-    color: var(--primary-500);
-    text-decoration: underline;
-  }
+
 `;
 
 export default Error;

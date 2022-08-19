@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Home, Dashboard, Register, Edit, Error, PrivateRoute } from './pages';
-import Navbar from './components/Navbar';
 function App() {
   return (
-    <Router>
+
+    < Router >
       <Switch>
         <Route path='/' exact>
           <Home />
@@ -22,7 +22,7 @@ function App() {
           <Error />
         </Route>
       </Switch>
-    </Router>
+    </Router >
   );
 }
 

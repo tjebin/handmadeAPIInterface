@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import { useGlobalContext } from '../context/appContext';
 import FormRow from '../components/FormRow';
 import Navbar from '../components/Navbar';
+import axios from 'axios';
+
 
 function Update() {
   const { id } = useParams();
@@ -11,7 +13,6 @@ function Update() {
     isLoading,
     editItem,
     fetchSingleProduct,
-    singleProductError: error,
     user,
     editProduct,
     message,
@@ -32,6 +33,35 @@ function Update() {
     createdAt: ''
   });
 
+  const [selectedFile, setSelectedFile] = useState("");
+  const [imgSrc, setImgSrc] = useState("");
+
+
+  const onFileChangeHandler = (e) => {
+    e.preventDefault();
+
+    setSelectedFile(e.target.files[0]);
+    setImgSrc(URL.createObjectURL(e.target.files[0]));
+    handleChange(e);
+  };
+
+  const onClickHandler = (e) => {
+    const data = new FormData();
+    data.append('file', selectedFile);
+
+    //data.append('id', item.id);
+    axios.post("/products/uploadImage", data, {
+    })
+      .then(res => {
+        editProduct(id, {
+          ...values
+        });
+      })
+      .catch(error => {
+        alert(error.response.data.msg);
+      })
+  }
+
   useEffect(() => {
     fetchSingleProduct(id);
   }, [id]);
@@ -47,35 +77,20 @@ function Update() {
   const handleChange = (e) => {
     if (e.target.type === 'checkbox') {
       setValues({ ...values, [e.target.name]: e.target.checked });
+    } else if (e.target.type === 'file') {
+      setValues({ ...values, image: e.target.files[0].name });
     } else {
       setValues({ ...values, [e.target.name]: e.target.value });
     }
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    editProduct(id, {
-      ...values
-    });
-
+    onClickHandler(e);
   };
   if (isLoading && !editItem) {
     return <div className='loading'></div>;
   }
 
-  if (!editItem || error) {
-    return (
-      <>
-        {!user && <Redirect to='/' />}
-        <ErrorContainer className='page'>
-          <h5>There was an error, please double check your product ID</h5>
-
-          <Link to='/dashboard' className='btn'>
-            dasboard
-          </Link>
-        </ErrorContainer>
-      </>
-    );
-  }
   return (
     <>
       {!user && <Redirect to='/' />}
@@ -125,11 +140,12 @@ function Update() {
                 value={values.category}
                 onChange={handleChange}
                 className='status'
+                defaultValue='home'
               >
                 <option value="home" selected>home</option>
-                <option value="Dining" >Dining</option>
+                <option value="dining" >Dining</option>
                 <option value="bedroom">bedroom</option>
-                <option value="Living Room">Handmade Mugs</option>
+                <option value="living room">Handmade Mugs</option>
               </select>
             </div>
             <div className='form-row'>
@@ -137,8 +153,12 @@ function Update() {
               <input type="checkbox" name="featured" checked={values.featured} onClick={handleChange} />
             </div>
             <div>
-              <label for="freeShipping">Free Shipping ? <br /></label>
+              <label htmlFor="freeShipping">Free Shipping ? <br /></label>
               <input type="checkbox" name="freeShipping" checked={values.freeShipping} onClick={handleChange} />
+            </div>
+            <div>
+              <span ><img src={imgSrc || `${process.env.REACT_APP_IMAGE_SERVER_URL}${values.image}`} alt="product_image" width="70px" height="70px" /></span>
+              <input type="file" name="image" onChange={(e) => onFileChangeHandler(e)} className="customFile" />
             </div>
             <div>
               <label htmlFor="company">Company <br /></label>
@@ -147,17 +167,16 @@ function Update() {
                 id='company'
                 onChange={handleChange}
                 name="company"
-                className='status'>
+                className='status'
+                defaultValue="Handmade">
                 <option value="Handmade" selected>Handmade</option>
                 <option value="Handmade Pots" >Handmade Pots</option>
                 <option value="Handmade Bed & Bath">Handmade Bed & Bath</option>
                 <option value="Handmade Mugs">Handmade Mugs</option>
               </select>
             </div>
-            <br />
-
             <div>
-              <label htmlFor="company">Company <br /></label>
+              <label htmlFor="company">Description <br /></label>
               <textarea
                 name="description"
                 rows="5"
@@ -179,10 +198,7 @@ function Update() {
     </>
   );
 }
-const ErrorContainer = styled.section`
-  text-align: center;
-  padding-top: 6rem; ;
-`;
+
 
 const Container = styled.section`
   header {
@@ -228,7 +244,7 @@ const Container = styled.section`
     .form-container {
       display: grid;
       grid-template-columns: 200px  150px  150px;
-      column-gap: 1.5rem;
+      column-gap: 2rem;
       row-gap:1.5rem;
       align-items: center;
     }

@@ -9,7 +9,6 @@ import bamboo_tray from '../assets/bamboo_tray.jpg';
 
 function Home() {
   const { user } = useGlobalContext();
-
   return (
     <>
       {user && <Redirect to='/dashboard' />}

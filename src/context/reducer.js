@@ -12,12 +12,22 @@ import {
     FETCH_SINGLE_PRODUCT_SUCCESS,
     FETCH_SINGLE_PRODUCT_ERROR,
     EDIT_PRODUCT_ERROR,
-    EDIT_PRODUCT_SUCCESS
+    EDIT_PRODUCT_SUCCESS,
+    SET_ALERT,
+    LOGIN_USER_SUCCESS,
+    LOGIN_USER_ERROR,
+    FETCH_USERS_SUCCESS,
+    FETCH_USERS_ERROR
+
 } from './actions'
 
 const reducer = (state, action) => {
     if (action.type === SET_LOADING) {
         return { ...state, isLoading: true, showAlert: false, editComplete: false, message: '' }
+    }
+
+    if (action.type === SET_ALERT) {
+        return { ...state, showAlert: false }
     }
 
     // user
@@ -40,6 +50,25 @@ const reducer = (state, action) => {
         }
     }
 
+    if (action.type === LOGIN_USER_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            user: action.payload,
+            showAlert: true,
+            message: 'Login Successfull'
+        }
+    }
+    if (action.type === LOGIN_USER_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            user: null,
+            showAlert: true,
+            message: action.payload
+        }
+    }
+
     if (action.type === SET_USER) {
         return { ...state, user: action.payload }
     }
@@ -53,6 +82,19 @@ const reducer = (state, action) => {
             editItem: null,
             message: ''
         }
+    }
+
+    if (action.type === FETCH_USERS_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            message: '',
+            showAlert: false,
+            users: action.payload,
+        }
+    }
+    if (action.type === FETCH_USERS_ERROR) {
+        return { ...state, isLoading: false }
     }
 
     // product

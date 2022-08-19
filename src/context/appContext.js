@@ -16,11 +16,17 @@ import {
   FETCH_SINGLE_PRODUCT_ERROR,
   EDIT_PRODUCT_SUCCESS,
   EDIT_PRODUCT_ERROR,
+  SET_ALERT,
+  LOGIN_USER_SUCCESS,
+  LOGIN_USER_ERROR,
+  FETCH_USERS_SUCCESS,
+  FETCH_USERS_ERROR
 } from './actions'
 import reducer from './reducer'
 
 const initialState = {
   user: null,
+  users: [],
   isLoading: false,
   products: [],
   showAlert: false,
@@ -33,6 +39,10 @@ const AppContext = React.createContext()
 
 const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
+
+  const setAlert = () => {
+    dispatch({ type: SET_ALERT })
+  }
 
   const setLoading = () => {
     dispatch({ type: SET_LOADING })
@@ -54,11 +64,6 @@ const AppProvider = ({ children }) => {
         JSON.stringify({ name: data.user.name, token: data.token })
       )
     } catch (error) {
-      if (error.response) {
-        // ✅ log status code here
-
-      }
-
       dispatch({ type: REGISTER_USER_ERROR, payload: error.response.data.msg })
     }
   }
@@ -71,14 +76,14 @@ const AppProvider = ({ children }) => {
         ...userInput,
       })
 
-      dispatch({ type: REGISTER_USER_SUCCESS, payload: data.user.name })
+      dispatch({ type: LOGIN_USER_SUCCESS, payload: data.user.name })
 
       localStorage.setItem(
         'user',
         JSON.stringify({ name: data.user.name, token: data.token })
       )
     } catch (error) {
-      dispatch({ type: REGISTER_USER_ERROR })
+      dispatch({ type: LOGIN_USER_ERROR, payload: error.response.data.msg })
     }
   }
 
@@ -88,13 +93,25 @@ const AppProvider = ({ children }) => {
     dispatch({ type: LOGOUT_USER })
   }
 
+  //fetch users
+  // /api/v1/users
+  const fetchUsers = async () => {
+    setLoading()
+    try {
+      const { data } = await axios.get(`/users`)
+      dispatch({ type: FETCH_USERS_SUCCESS, payload: data.users })
+    } catch (error) {
+      dispatch({ type: FETCH_USERS_ERROR })
+      logout();
+    }
+  }
+
   // product
   // fetch products
   const fetchProducts = async () => {
     setLoading()
     try {
       const { data } = await axios.get(`/products`)
-      console.log(data);
       dispatch({ type: FETCH_PRODUCTS_SUCCESS, payload: data.products })
     } catch (error) {
       dispatch({ type: FETCH_PRODUCTS_ERROR })
@@ -104,8 +121,6 @@ const AppProvider = ({ children }) => {
 
   // create product
   const createProduct = async (userInput) => {
-    userInput.user = '62f3c2248122d2951aa7c51e';
-
     setLoading()
     try {
       const { data } = await axios.post(`/products`, {
@@ -114,13 +129,6 @@ const AppProvider = ({ children }) => {
 
       dispatch({ type: CREATE_PRODUCT_SUCCESS, payload: data.product })
     } catch (err) {
-      if (err.response) {
-        // ✅ log status code here
-        console.log(err.response.status);
-        console.log(err.message);
-        console.log(err.response.headers); // 👉️ {... response headers here}
-        console.log(err.response.data); // 👉️ {... response data here}
-      }
       dispatch({ type: CREATE_PRODUCT_ERROR, payload: err.response.data.msg })
     }
   }
@@ -131,14 +139,6 @@ const AppProvider = ({ children }) => {
       await axios.delete(`/products/${productId}`)
       fetchProducts()
     } catch (error) {
-      if (error.response) {
-        // ✅ log status code here
-        console.log(error.response.status);
-        console.log(error.message);
-        console.log(error.response.headers); // 👉️ {... response headers here}
-        console.log(error.response.data); // 👉️ {... response data here}
-      }
-
       dispatch({ type: DELETE_PRODUCT_ERROR, payload: error.response.data.msg })
     }
   }
@@ -162,13 +162,6 @@ const AppProvider = ({ children }) => {
       })
       dispatch({ type: EDIT_PRODUCT_SUCCESS, payload: data.product })
     } catch (error) {
-      if (error.response) {
-        // ✅ log status code here
-        console.log(error.response.status);
-        console.log(error.message);
-        console.log(error.response.headers); // 👉️ {... response headers here}
-        console.log(error.response.data); // 👉️ {... response data here}
-      }
       dispatch({ type: EDIT_PRODUCT_ERROR, payload: error.response.data.msg })
     }
   }
@@ -192,7 +185,9 @@ const AppProvider = ({ children }) => {
         fetchProducts,
         deleteProduct,
         fetchSingleProduct,
-        editProduct
+        editProduct,
+        setAlert,
+        fetchUsers
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useGlobalContext } from '../context/appContext';
 import { Redirect } from 'react-router-dom';
@@ -13,7 +13,7 @@ function Register() {
     isMember: true,
   });
 
-  const { user, register, login, isLoading, showAlert, message } = useGlobalContext();
+  const { user, register, login, isLoading, showAlert, message, setAlert } = useGlobalContext();
   const toggleMember = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
@@ -31,6 +31,11 @@ function Register() {
     }
   };
 
+  useEffect(() => {
+    setTimeout(() => { setAlert() }, 10000);
+  }, []);
+
+
   return (
     <>
       {user && <Redirect to='/dashboard' />}
@@ -38,13 +43,12 @@ function Register() {
         <div className='container'>
           {showAlert && (
             <div className='alert alert-danger'>
-              {message}
+              Messaage  ->   {message}
             </div>
           )}
           <form className='form' onSubmit={onSubmit}>
             <img src={logo} alt='handmade_logo' className='logo' />
             <h4>{values.isMember ? 'Login' : 'Register'}</h4>
-            {/* name field */}
             {!values.isMember && (
               <FormRow
                 type='name'
@@ -53,23 +57,18 @@ function Register() {
                 handleChange={handleChange}
               />
             )}
-
-            {/* single form row */}
             <FormRow
               type='email'
               name='email'
               value={values.email}
               handleChange={handleChange}
             />
-            {/* end of single form row */}
-            {/* single form row */}
             <FormRow
               type='password'
               name='password'
               value={values.password}
               handleChange={handleChange}
             />
-            {/* end of single form row */}
             <button
               type='submit'
               className='btn btn-block'
@@ -79,7 +78,6 @@ function Register() {
             </button>
             <p>
               {values.isMember ? 'Not a member yet?' : 'Already a member?'}
-
               <button
                 type='button'
                 onClick={toggleMember}

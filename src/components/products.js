@@ -4,8 +4,11 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import moment from 'moment';
+require('dotenv').config()
 
 const Products = () => {
+
+  console.log(process.env);
   const { products, isLoading, deleteProduct } = useGlobalContext();
 
   if (isLoading) {
@@ -39,25 +42,26 @@ const Products = () => {
         <span>created at</span>
         <span className='action'>action</span>
       </WrapperColumn>
-
       <Container>
         {products.map((item) => {
+
           const { _id: id, name, price, description, image, company, category, featured, freeShipping, inventory, averageRating, createdAt } = item;
+          let imageSrc = `${process.env.REACT_APP_IMAGE_SERVER_URL}${image}`;
+
           let date = moment(createdAt);
           date = date.format('MMMM Do, YYYY');
           return (
             <article key={id} className='product'>
-              <span >{name}</span>
+              <span className="sm-display">{name}</span>
               <span >{price}</span>
-              <span >{description}</span>
-              <span >{image}</span>
-              <span >{company}</span>
+              <span style={{ overflow: "hidden" }}>{description}</span>
+              <span ><img src={imageSrc} alt="product_image" width="70px" height="70px" /></span>
+              <span > {company}</span>
               <span >{category}</span>
-              <span >{featured === true ? <input type="checkbox" checked="checked" disabled /> : <input type="checkbox" disabled />}</span>
-              <span >{freeShipping === true ? <input type="checkbox" checked="checked" disabled /> : <input type="checkbox" disabled />}</span>
-
-              <span >{inventory}</span>
-              <span >{averageRating}</span>
+              <span className="sm-display-none">{featured === true ? <input type="checkbox" defaultChecked={true} disabled /> : <input type="checkbox" disabled />}</span>
+              <span className="sm-display-none">{freeShipping === true ? <input type="checkbox" defaultChecked={true} disabled /> : <input type="checkbox" defaultChecked disabled />}</span>
+              <span className="sm-display-none">{inventory}</span>
+              <span className="sm-display-none">{averageRating}</span>
               <span className='date'>{date}</span>
               <div className='action-div'>
                 <Link to={`/edit/${id}`} className='edit-btn' type='button'>
@@ -93,47 +97,32 @@ const Container = styled.section`
     border-radius: var(--borderRadius);
     margin-bottom: 2rem;
     display: grid;
-    grid-template-columns: 1fr 1fr  1fr 1fr  1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr ;      
     align-items: center;
     padding: 1rem 1.5rem;
     column-gap: 1rem;
     padding: 2rem 0;
     justify-content: center;
-    text-align: center;
+    text-align: left;
+    font-weight: 400;
+    .sm-display-none {
+      display: none;
+    }
+
+    .sm-display {
+      border-bottom : 4px solid green;
+      width:30%;
+    }
   }
 
-  .icon {
-    background: var(--primary-500);
-    display: block;
-    border-radius: var(--borderRadius);
-    color: var(--white);
-    font-size: 2rem;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    margin-bottom: 1rem;
-  }
   span {
     text-transform: capitalize;
     letter-spacing: var(--letterSpacing);
   }
-  .position {
-    font-weight: 600;
-  }
   .date {
     color: var(--grey-500);
   }
-  .status {
-    border-radius: var(--borderRadius);
-    text-transform: capitalize;
-    letter-spacing: var(--letterSpacing);
-    text-align: center;
-    margin: 0.75rem auto;
-    width: 100px;
-  }
+ 
   .edit-btn {
     color: var(--green-dark);
     border-color: transparent;
@@ -169,11 +158,8 @@ const Container = styled.section`
     grid-template-columns: 1fr 1fr;
     column-gap: 1rem;
   }
-  @media (min-width: 992px) {
+  @media (min-width: 1040px) {
     grid-template-columns: 1fr;
-    .icon {
-      display: none;
-    }
     background: var(--white);
     border-bottom-left-radius: var(--borderRadius);
     border-bottom-right-radius: var(--borderRadius);
@@ -183,61 +169,37 @@ const Container = styled.section`
       justify-content: left;
       text-align: left;
       border-bottom: 1px solid var(--grey-200);
-   grid-template-columns: 1fr 1fr  1fr 1fr  1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;      align-items: center;
+      grid-template-columns: 1fr 1fr  1fr 1fr  1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;      
+      align-items: center;
       padding: 1rem 1.5rem;
       column-gap: 1rem;
-      margin-bottom: 0;
+      font-weight:100;
+      
+      .sm-display-none {
+          display: block;
+      }
+      .sm-display {
+        border :none;
+      } 
     }
+      
     .product:last-child {
       border-bottom: none;
     }
     span {
       font-size: var(--small-text);
     }
-    .company,
-    .position {
-      font-weight: 400;
-      text-transform: capitalize;
-    }
-    .date {
-      font-weight: 400;
-      color: var(--grey-500);
-    }
-
-    .status {
-      font-size: var(--smallText);
-    }
-
+   
     .action-div {
       margin-left: 1rem;
       justify-content: left;
     }
   }
 `;
-const setStatusColor = (status) => {
-  if (status === 'interview') return '#0f5132';
-  if (status === 'declined') return '#842029';
-  return '#927238';
-};
-const setStatusBackground = (status) => {
-  if (status === 'interview') return '#d1e7dd';
-  if (status === 'declined') return '#f8d7da';
-  return '#f7f3d7';
-};
-
-const StatusContainer = styled.span`
-  border-radius: var(--borderRadius);
-  text-transform: capitalize;
-  letter-spacing: var(--letterSpacing);
-  text-align: center;
-  color: ${(props) => setStatusColor(props.status)};
-  background: ${(props) => setStatusBackground(props.status)};
-`;
-
 
 const WrapperColumn = styled.section`
   display: none;
-  @media (min-width: 992px) {
+  @media (min-width: 1040px) {
     display: block;
     background: var(--grey-200);
     color: var(--grey-500);
@@ -257,6 +219,5 @@ const WrapperColumn = styled.section`
     }
   }
 `;
-
 
 export default Products;
