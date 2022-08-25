@@ -11,6 +11,7 @@ function Register() {
     email: '',
     password: '',
     isMember: true,
+    gender: 'Male'
   });
 
   const { user, register, login, isLoading, showAlert, message, setAlert } = useGlobalContext();
@@ -22,19 +23,17 @@ function Register() {
   };
   const onSubmit = (e) => {
     e.preventDefault();
-    const { name, email, password, isMember } = values;
-
+    const { name, email, password, isMember, gender } = values;
     if (isMember) {
       login({ email, password });
     } else {
-      register({ name, email, password });
+      register({ name, email, password, gender });
     }
   };
 
   useEffect(() => {
-    setTimeout(() => { setAlert() }, 10000);
-  }, []);
-
+    setTimeout(() => { setAlert() }, 8000);
+  }, []);// eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
@@ -43,7 +42,7 @@ function Register() {
         <div className='container'>
           {showAlert && (
             <div className='alert alert-danger'>
-              Messaage  ->   {message}
+              {message}
             </div>
           )}
           <form className='form' onSubmit={onSubmit}>
@@ -69,6 +68,15 @@ function Register() {
               value={values.password}
               handleChange={handleChange}
             />
+            {!values.isMember &&
+              <div>
+                <label htmlFor="gender" className='form-label'>Gender</label>
+                <input type="radio" id="Male" name="gender" value="Male" onChange={handleChange} />
+                <label for="Male">  Male</label> &nbsp;
+                <input type="radio" id="Female" name="gender" value="Female" onChange={handleChange} />
+                <label for="Female">  Female</label>
+              </div>
+            }
             <button
               type='submit'
               className='btn btn-block'
@@ -97,33 +105,34 @@ const Wrapper = styled.section`
   display: grid;
   align-items: center;
   .logo {
-    display: block;
-    margin: 0 auto;
-    margin-bottom: 1.38rem;
-    height: 40px;
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 1.38rem;
+      height: 40px;
   }
   .form {
-    max-width: 400;
-    border-top: 5px solid var(--primary-500);
+      max-width: 400;
+      border-top: 5px solid var(--primary-500);
   }
-
   h4 {
-    text-align: center;
+      text-align: center;
   }
   p {
-    margin: 0;
-    margin-top: 1rem;
-    text-align: center;
+     margin: 0;
+     margin-top: 1rem;
+     text-align: center;
   }
   .btn {
-    margin-top: 1rem;
+      margin-top: 1rem;
   }
   .member-btn {
-    background: transparent;
-    border: transparent;
-    color: var(--primary-500);
-    cursor: pointer;
+      background: transparent;
+      border: transparent;
+      color: var(--primary-500);
+      cursor: pointer;
   }
 `;
 
 export default Register;
+
+

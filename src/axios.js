@@ -1,13 +1,18 @@
 import axios from 'axios';
-axios.defaults.baseURL = 'http://localhost:5000/api/v1';
+require('dotenv').config()
+
+
+axios.defaults.baseURL = `${process.env.REACT_APP_BASE_URL}`;
 
 axios.interceptors.request.use(function (req) {
   const user = localStorage.getItem('user');
-
   if (user) {
     const { token } = JSON.parse(localStorage.getItem('user'));
-    req.headers.authorization = `${token}`;
+    req.headers.authorization = `${token} `;
     return req;
+  } else {
+    req.headers.authorization = '';
   }
+
   return req;
 });

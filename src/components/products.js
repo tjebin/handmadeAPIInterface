@@ -4,13 +4,9 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import moment from 'moment';
-require('dotenv').config()
 
 const Products = () => {
-
-  console.log(process.env);
   const { products, isLoading, deleteProduct } = useGlobalContext();
-
   if (isLoading) {
     return <div className='loading'></div>;
   }
@@ -25,7 +21,6 @@ const Products = () => {
       </EmptyContainer>
     );
   }
-
   return (
     <>
       <WrapperColumn>
@@ -44,10 +39,8 @@ const Products = () => {
       </WrapperColumn>
       <Container>
         {products.map((item) => {
-
           const { _id: id, name, price, description, image, company, category, featured, freeShipping, inventory, averageRating, createdAt } = item;
           let imageSrc = `${process.env.REACT_APP_IMAGE_SERVER_URL}${image}`;
-
           let date = moment(createdAt);
           date = date.format('MMMM Do, YYYY');
           return (
@@ -83,13 +76,13 @@ const Products = () => {
   );
 };
 const EmptyContainer = styled.section`
-  text-align: center;
-  h5 {
-    text-transform: none;
-  }
-  span {
-    color: var(--primary-500);
-  }
+    text-align: center;
+    h5 {
+     text-transform: none;
+    }
+    span {
+      color: var(--primary-500);
+    }
 `;
 const Container = styled.section`
   .product {
@@ -108,13 +101,11 @@ const Container = styled.section`
     .sm-display-none {
       display: none;
     }
-
     .sm-display {
       border-bottom : 4px solid green;
       width:30%;
     }
   }
-
   span {
     text-transform: capitalize;
     letter-spacing: var(--letterSpacing);
@@ -122,7 +113,6 @@ const Container = styled.section`
   .date {
     color: var(--grey-500);
   }
- 
   .edit-btn {
     color: var(--green-dark);
     border-color: transparent;
@@ -146,7 +136,6 @@ const Container = styled.section`
     line-height: 1.15;
     margin-bottom: -3px;
   }
-
   .action-div {
     display: flex;
     align-items: center;
@@ -163,7 +152,6 @@ const Container = styled.section`
     background: var(--white);
     border-bottom-left-radius: var(--borderRadius);
     border-bottom-right-radius: var(--borderRadius);
-
     .product {
       border-radius: 0;
       justify-content: left;
@@ -174,7 +162,6 @@ const Container = styled.section`
       padding: 1rem 1.5rem;
       column-gap: 1rem;
       font-weight:100;
-      
       .sm-display-none {
           display: block;
       }
@@ -182,14 +169,12 @@ const Container = styled.section`
         border :none;
       } 
     }
-      
     .product:last-child {
       border-bottom: none;
     }
     span {
       font-size: var(--small-text);
     }
-   
     .action-div {
       margin-left: 1rem;
       justify-content: left;

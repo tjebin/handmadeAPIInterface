@@ -3,19 +3,20 @@ import styled from 'styled-components';
 import logo from '../assets/handmade_logo.png';
 import { FaUserCircle, FaCaretDown } from 'react-icons/fa';
 import { useGlobalContext } from '../context/appContext';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
-  const { user, logout, showAlert, message } = useGlobalContext();
+  const { user, logout } = useGlobalContext();
   const [showLogout, setShowLogout] = useState(false);
   return (
     <Wrapper>
       <div className='nav-center'>
-        <img src={logo} alt='handmade logo' />
+        <Link to="/dashboard"><img src={logo} alt='handmade logo' /></Link>
         {user && (
           <div className='btn-container'>
             <button className='btn' onClick={() => setShowLogout(!showLogout)}>
               <FaUserCircle />
-              {user}
+              {user.name}
               <FaCaretDown />
             </button>
             <div className={showLogout ? 'dropdown show-dropdown' : 'dropdown'}>

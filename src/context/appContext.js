@@ -20,7 +20,13 @@ import {
   LOGIN_USER_SUCCESS,
   LOGIN_USER_ERROR,
   FETCH_USERS_SUCCESS,
-  FETCH_USERS_ERROR
+  FETCH_USERS_ERROR,
+  DELETE_USER_ERROR,
+  EDIT_USER_SUCCESS,
+  EDIT_USER_ERROR,
+  FETCH_SINGLE_USER_SUCCESS,
+  FETCH_SINGLE_USER_ERROR,
+  NOT_AUTHORIZED_TO_ACCESS_THIS_ROLE
 } from './actions'
 import reducer from './reducer'
 
@@ -57,12 +63,17 @@ const AppProvider = ({ children }) => {
           ...userInput,
         })
 
-      dispatch({ type: REGISTER_USER_SUCCESS, payload: data.user.name })
+      dispatch({
+        type: REGISTER_USER_SUCCESS,
+        payload: data.user
+
+      })
 
       localStorage.setItem(
         'user',
-        JSON.stringify({ name: data.user.name, token: data.token })
+        JSON.stringify({ user: data.user, token: data.token })
       )
+
     } catch (error) {
       dispatch({ type: REGISTER_USER_ERROR, payload: error.response.data.msg })
     }
@@ -76,11 +87,14 @@ const AppProvider = ({ children }) => {
         ...userInput,
       })
 
-      dispatch({ type: LOGIN_USER_SUCCESS, payload: data.user.name })
+      dispatch({
+        type: LOGIN_USER_SUCCESS,
+        payload: data.user
+      })
 
       localStorage.setItem(
         'user',
-        JSON.stringify({ name: data.user.name, token: data.token })
+        JSON.stringify({ user: data.user, token: data.token })
       )
     } catch (error) {
       dispatch({ type: LOGIN_USER_ERROR, payload: error.response.data.msg })
@@ -89,7 +103,7 @@ const AppProvider = ({ children }) => {
 
   // logout
   const logout = () => {
-    localStorage.removeItem('user')
+    setTimeout(() => { localStorage.removeItem('user') }, 2000);
     dispatch({ type: LOGOUT_USER })
   }
 
@@ -103,6 +117,39 @@ const AppProvider = ({ children }) => {
     } catch (error) {
       dispatch({ type: FETCH_USERS_ERROR })
       logout();
+    }
+  }
+
+  const deleteUser = async (userId) => {
+    setLoading();
+    try {
+      await axios.delete(`/users/${userId}`)
+      fetchUsers()
+    } catch (error) {
+      dispatch({ type: DELETE_USER_ERROR, payload: error.response.data.msg })
+    }
+  }
+
+  const editUser = async (userId, userInput) => {
+    setLoading()
+    try {
+      const { data } = await axios.patch(`/users/updateUser`, {
+        ...userInput,
+      })
+      dispatch({ type: EDIT_USER_SUCCESS, payload: data.user })
+
+    } catch (error) {
+      dispatch({ type: EDIT_USER_ERROR, payload: error.response.data.msg })
+    }
+  }
+
+  const fetchSingleUser = async (userId) => {
+    setLoading()
+    try {
+      const { data } = await axios.get(`/users/${userId}`)
+      dispatch({ type: FETCH_SINGLE_USER_SUCCESS, payload: data.user })
+    } catch (error) {
+      dispatch({ type: FETCH_SINGLE_USER_ERROR, payload: error.response.data.msg })
     }
   }
 
@@ -134,7 +181,6 @@ const AppProvider = ({ children }) => {
   }
   const deleteProduct = async (productId) => {
     setLoading();
-
     try {
       await axios.delete(`/products/${productId}`)
       fetchProducts()
@@ -166,13 +212,20 @@ const AppProvider = ({ children }) => {
     }
   }
 
+  const showNotAuthorizedError = () => {
+    dispatch({ type: NOT_AUTHORIZED_TO_ACCESS_THIS_ROLE })
+  }
+
   useEffect(() => {
     const user = localStorage.getItem('user')
+
     if (user) {
       const newUser = JSON.parse(user)
-      dispatch({ type: SET_USER, payload: newUser.name })
+      dispatch({ type: SET_USER, payload: newUser.user })
     }
+
   }, [])
+
   return (
     <AppContext.Provider
       value={{
@@ -187,7 +240,11 @@ const AppProvider = ({ children }) => {
         fetchSingleProduct,
         editProduct,
         setAlert,
-        fetchUsers
+        fetchUsers,
+        fetchSingleUser,
+        deleteUser,
+        editUser,
+        showNotAuthorizedError
       }}
     >
       {children}

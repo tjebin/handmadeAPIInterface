@@ -1,8 +1,7 @@
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import { Home, Dashboard, Register, Edit, Error, PrivateRoute } from './pages';
+import { Home, Dashboard, Register, Edit, EditUser, Error, PrivateRoute } from './pages';
 function App() {
   return (
-
     < Router >
       <Switch>
         <Route path='/' exact>
@@ -17,7 +16,9 @@ function App() {
         <Route path='/edit/:id'>
           <Edit />
         </Route>
-
+        <Route path='/editUser/:id'>
+          <EditUser />
+        </Route>
         <Route path='*'>
           <Error />
         </Route>

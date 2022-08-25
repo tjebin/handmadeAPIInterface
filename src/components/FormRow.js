@@ -25,10 +25,6 @@ const FormRow = ({
           placeholder={placeholder}
         />
       </div>
-
-
-
-
     </>
   );
 };

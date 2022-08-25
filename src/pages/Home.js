@@ -1,11 +1,10 @@
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { useGlobalContext } from '../context/appContext';
-import { Redirect } from 'react-router-dom';
 import logo from '../assets/handmade_logo.png';
 import bedding_set from '../assets/bedding_set.jpg';
 import bamboo_tray from '../assets/bamboo_tray.jpg';
-
+import { useGlobalContext } from '../context/appContext';
+import { Redirect } from 'react-router-dom';
 
 function Home() {
   const { user } = useGlobalContext();

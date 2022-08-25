@@ -17,8 +17,13 @@ import {
     LOGIN_USER_SUCCESS,
     LOGIN_USER_ERROR,
     FETCH_USERS_SUCCESS,
-    FETCH_USERS_ERROR
-
+    FETCH_USERS_ERROR,
+    DELETE_USER_ERROR,
+    EDIT_USER_SUCCESS,
+    EDIT_USER_ERROR,
+    FETCH_SINGLE_USER_SUCCESS,
+    FETCH_SINGLE_USER_ERROR,
+    NOT_AUTHORIZED_TO_ACCESS_THIS_ROLE
 } from './actions'
 
 const reducer = (state, action) => {
@@ -30,7 +35,6 @@ const reducer = (state, action) => {
         return { ...state, showAlert: false }
     }
 
-    // user
     if (action.type === REGISTER_USER_SUCCESS) {
         return {
             ...state,
@@ -72,6 +76,7 @@ const reducer = (state, action) => {
     if (action.type === SET_USER) {
         return { ...state, user: action.payload }
     }
+
     if (action.type === LOGOUT_USER) {
         return {
             ...state,
@@ -94,11 +99,8 @@ const reducer = (state, action) => {
         }
     }
     if (action.type === FETCH_USERS_ERROR) {
-        return { ...state, isLoading: false }
+        return { ...state, isLoading: false, showAlert: false, message: '', editItem: null }
     }
-
-    // product
-
     if (action.type === FETCH_PRODUCTS_SUCCESS) {
         return {
             ...state,
@@ -111,7 +113,7 @@ const reducer = (state, action) => {
         }
     }
     if (action.type === FETCH_PRODUCTS_ERROR) {
-        return { ...state, isLoading: false }
+        return { ...state, isLoading: false, showAlert: false, message: '', editItem: null }
     }
     if (action.type === CREATE_PRODUCT_SUCCESS) {
         return {
@@ -155,7 +157,6 @@ const reducer = (state, action) => {
     }
 
     if (action.type === EDIT_PRODUCT_SUCCESS) {
-
         return {
             ...state,
             isLoading: false,
@@ -173,7 +174,57 @@ const reducer = (state, action) => {
             message: action.payload
         }
     }
+    if (action.type === DELETE_USER_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            message: action.payload
+        }
+    }
 
+    if (action.type === EDIT_USER_SUCCESS) {
+        return {
+            ...state,
+            isLoading: false,
+            editComplete: true,
+            editItem: action.payload,
+            showAlert: true,
+            message: 'User Updated!'
+        }
+    }
+    if (action.type === EDIT_USER_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            showAlert: true,
+            message: action.payload
+        }
+    }
+
+    if (action.type === FETCH_SINGLE_USER_SUCCESS) {
+        return { ...state, isLoading: false, editItem: action.payload }
+    }
+    if (action.type === FETCH_SINGLE_USER_ERROR) {
+        return {
+            ...state,
+            isLoading: false,
+            editItem: '',
+            showAlert: true,
+            message: action.payload
+        }
+    }
+
+    if (action.type === NOT_AUTHORIZED_TO_ACCESS_THIS_ROLE) {
+        return {
+            ...state,
+            isLoading: false,
+            editItem: '',
+            showAlert: true,
+            message: 'Not authorized to access this role'
+        }
+
+    }
     throw new Error(`no such action : ${action}`)
 }
 

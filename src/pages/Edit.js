@@ -6,7 +6,6 @@ import FormRow from '../components/FormRow';
 import Navbar from '../components/Navbar';
 import axios from 'axios';
 
-
 function Update() {
   const { id } = useParams();
   const {
@@ -16,7 +15,9 @@ function Update() {
     user,
     editProduct,
     message,
-    showAlert
+    showAlert,
+    setAlert,
+    showNotAuthorizedError
   } = useGlobalContext();
 
   const [values, setValues] = useState({
@@ -30,16 +31,15 @@ function Update() {
     freeShipping: '',
     inventory: '',
     averageRating: 0,
-    createdAt: ''
+    createdAt: '',
+    user: ''
   });
 
   const [selectedFile, setSelectedFile] = useState("");
   const [imgSrc, setImgSrc] = useState("");
 
-
   const onFileChangeHandler = (e) => {
     e.preventDefault();
-
     setSelectedFile(e.target.files[0]);
     setImgSrc(URL.createObjectURL(e.target.files[0]));
     handleChange(e);
@@ -48,8 +48,6 @@ function Update() {
   const onClickHandler = (e) => {
     const data = new FormData();
     data.append('file', selectedFile);
-
-    //data.append('id', item.id);
     axios.post("/products/uploadImage", data, {
     })
       .then(res => {
@@ -64,7 +62,7 @@ function Update() {
 
   useEffect(() => {
     fetchSingleProduct(id);
-  }, [id]);
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (editItem) {
@@ -72,7 +70,18 @@ function Update() {
         ...editItem
       });
     }
-  }, [editItem]);
+
+    if (user && values) {
+      if (values && values.user && user.userId !== values.user) {
+        showNotAuthorizedError();
+      }
+    }
+
+  }, [editItem]);// eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setTimeout(() => { setAlert() }, 10000);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleChange = (e) => {
     if (e.target.type === 'checkbox') {
@@ -85,7 +94,13 @@ function Update() {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    onClickHandler(e);
+    if (selectedFile) {
+      onClickHandler(e);
+    } else {
+      editProduct(id, {
+        ...values
+      });
+    }
   };
   if (isLoading && !editItem) {
     return <div className='loading'></div>;
@@ -95,105 +110,120 @@ function Update() {
     <>
       {!user && <Redirect to='/' />}
       <Navbar />
+      {showAlert && (
+        <div className='alert alert-danger'>
+          {message}
+        </div>
+      )}
+
       <Container className='page'>
         <header>
           <Link to='/dashboard' className='btn btn-block back-home'>
             back home
           </Link>
         </header>
-        {showAlert && (
-          <div className='alert alert-danger'>
-            {message}
-          </div>
-        )}
-        <form className='form' onSubmit={handleSubmit}>
-          {/* <p>{editComplete && 'Success! Edit Complete'}</p> */}
-          <h4>Update Product</h4>
-          {/* company */}
-          <div className='form-container'>
-            <FormRow
-              type='name'
-              name='name'
-              value={values.name}
-              handleChange={handleChange}
-            />
-            <FormRow
-              type='number'
-              name='price'
-              value={values.price}
-              handleChange={handleChange}
-            />
 
-            <FormRow
-              type='number'
-              name='inventory'
-              value={values.inventory}
-              handleChange={handleChange}
-            />
-
-            <div className='form-row'>
-              <label htmlFor='category' className='form-label'>
-                Category
-              </label>
-              <select
-                name='category'
-                value={values.category}
-                onChange={handleChange}
-                className='status'
-                defaultValue='home'
+        {(user && user.userId === values.user) &&
+          <form className='form' onSubmit={handleSubmit}>
+            <h4>Update Product</h4>
+            <div className='form-container'>
+              <FormRow
+                type='name'
+                name='name'
+                value={values.name}
+                handleChange={handleChange}
+              />
+              <FormRow
+                type='number'
+                name='price'
+                value={values.price}
+                handleChange={handleChange}
+              />
+              <FormRow
+                type='number'
+                name='inventory'
+                value={values.inventory}
+                handleChange={handleChange}
+              />
+              <div className='form-row'>
+                <label htmlFor='category' className='form-label'>
+                  Category
+                </label>
+                <select
+                  name='category'
+                  value={values.category || 'home'}
+                  onChange={handleChange}
+                  className='status'
+                >
+                  <option value="home" selected>home</option>
+                  <option value="dining" >Dining</option>
+                  <option value="bedroom">bedroom</option>
+                  <option value="living room">Handmade Mugs</option>
+                </select>
+              </div>
+              <div className='form-row'>
+                <label htmlFor="Featured">Featured ? <br /></label>
+                <input type="checkbox" name="featured" checked={values.featured} onClick={handleChange} />
+              </div>
+              <div>
+                <label htmlFor="freeShipping">Free Shipping ? <br /></label>
+                <input type="checkbox" name="freeShipping" checked={values.freeShipping} onClick={handleChange} />
+              </div>
+              <div>
+                <span ><img src={imgSrc || `${process.env.REACT_APP_IMAGE_SERVER_URL}${values.image}`} alt="product_image" width="70px" height="70px" /></span>
+                <input type="file" name="image" onChange={(e) => onFileChangeHandler(e)} className="customFile" />
+              </div>
+              <div>
+                <label htmlFor="company">Company <br /></label>
+                <select
+                  value={values.company || 'Handmade'}
+                  id='company'
+                  onChange={handleChange}
+                  name="company"
+                  className='status'
+                >
+                  <option value="Handmade" >Handmade</option>
+                  <option value="Handmade Pots" >Handmade Pots</option>
+                  <option value="Handmade Bed & Bath">Handmade Bed & Bath</option>
+                  <option value="Handmade Mugs">Handmade Mugs</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="company">Description <br /></label>
+                <textarea
+                  name="description"
+                  rows="5"
+                  value={values.description}
+                  onChange={handleChange}
+                  cols="40">
+                </textarea>
+              </div>
+              <FormRow
+                type='number'
+                name='averageRating'
+                value={values.averageRating}
+                handleChange={handleChange}
+                vertical
+                placeholder='Average Rating'
+              />
+              <FormRow
+                type='number'
+                name='stars'
+                value={values.stars}
+                handleChange={handleChange}
+                vertical
+                placeholder='Stars'
+              />
+              <button
+                type='submit'
+                className='btn btn-block submit-btn'
+                disabled={isLoading}
               >
-                <option value="home" selected>home</option>
-                <option value="dining" >Dining</option>
-                <option value="bedroom">bedroom</option>
-                <option value="living room">Handmade Mugs</option>
-              </select>
+                {isLoading ? 'Editing...' : 'Edit'}
+              </button>
             </div>
-            <div className='form-row'>
-              <label htmlFor="Featured">Featured ? <br /></label>
-              <input type="checkbox" name="featured" checked={values.featured} onClick={handleChange} />
-            </div>
-            <div>
-              <label htmlFor="freeShipping">Free Shipping ? <br /></label>
-              <input type="checkbox" name="freeShipping" checked={values.freeShipping} onClick={handleChange} />
-            </div>
-            <div>
-              <span ><img src={imgSrc || `${process.env.REACT_APP_IMAGE_SERVER_URL}${values.image}`} alt="product_image" width="70px" height="70px" /></span>
-              <input type="file" name="image" onChange={(e) => onFileChangeHandler(e)} className="customFile" />
-            </div>
-            <div>
-              <label htmlFor="company">Company <br /></label>
-              <select
-                value={values.company}
-                id='company'
-                onChange={handleChange}
-                name="company"
-                className='status'
-                defaultValue="Handmade">
-                <option value="Handmade" selected>Handmade</option>
-                <option value="Handmade Pots" >Handmade Pots</option>
-                <option value="Handmade Bed & Bath">Handmade Bed & Bath</option>
-                <option value="Handmade Mugs">Handmade Mugs</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="company">Description <br /></label>
-              <textarea
-                name="description"
-                rows="5"
-                value={values.description}
-                onChange={handleChange}
-                cols="40">
-              </textarea>
-            </div>
-            <button
-              type='submit'
-              className='btn btn-block submit-btn'
-              disabled={isLoading}
-            >
-              {isLoading ? 'Editing...' : 'Edit'}
-            </button>
-          </div>
-        </form>
+          </form>
+        }
       </Container>
     </>
   );

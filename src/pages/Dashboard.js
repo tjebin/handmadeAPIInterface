@@ -5,8 +5,9 @@ import { useGlobalContext } from '../context/appContext';
 import FormRow from '../components/FormRow';
 import Navbar from '../components/Navbar';
 import Products from '../components/Products';
-import User from '../components/User';
-
+import User from '../components/User'; import { MultiSelect } from "react-multi-select-component";
+import { options } from '../utils.js/Colors';
+import { Redirect } from 'react-router-dom';
 
 function Dashboard() {
   const [values, setValues] = useState({
@@ -16,7 +17,7 @@ function Dashboard() {
     image: '',
     category: 'home',
     company: 'Handmade',
-    colors: '',
+    colors: [],
     featured: false,
     freeShipping: false,
     inventory: 0,
@@ -27,34 +28,29 @@ function Dashboard() {
   const [imgSrc, setImgSrc] = useState("");
   const [showManageProduct, setShowManageProduct] = useState(false);
   const [showManageUser, setShowManageUser] = useState(false);
+  const { isLoading, showAlert, fetchProducts, createProduct, message, setAlert, user } = useGlobalContext();
 
+  const [selected, setSelected] = useState([]);
 
   const onFileChangeHandler = (e) => {
     e.preventDefault();
-
     setSelectedFile(e.target.files[0]);
-
     setImgSrc(URL.createObjectURL(e.target.files[0]));
-
     handleChange(e);
-
   };
 
   const onClickHandler = (e) => {
     const data = new FormData();
     data.append('file', selectedFile);
-
     axios.post("/products/uploadImage", data, {
     })
       .then(res => {
-        console.log(res.data);
         createProduct(values);
       })
       .catch(error => {
         alert(error.response.data.msg);
       })
   }
-
 
   const handleChange = (e) => {
     if (e.target.type === 'checkbox') {
@@ -66,20 +62,28 @@ function Dashboard() {
     }
   };
 
-  const { isLoading, showAlert, fetchProducts, createProduct, message, setAlert } = useGlobalContext();
-
   const handleSubmit = (e) => {
+    if (selected) {
+      let colorsArray = selected.map((element) => {
+        let color = Object.values(element)[1];
+        return color;
+      })
+      setValues({ ...values, 'colors': colorsArray });
+    }
+
     e.preventDefault();
     onClickHandler(e);
-
   };
 
   useEffect(() => {
     fetchProducts();
     setTimeout(() => { setAlert() }, 10000);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <>
+      {!user && <Redirect to='/home' />}
+
       <Navbar />
       <Wrapper className='page'>
         {showAlert && (
@@ -90,11 +94,11 @@ function Dashboard() {
         <div className="list-button">
           <h2 onClick={() => {
             setShowManageProduct(true);
-            setShowManageUser(!showManageUser)
+            setShowManageUser(false)
           }}> Product</h2>
           <h2 onClick={() => {
-            setShowManageProduct(false);
             setShowManageUser(!showManageUser)
+            setShowManageProduct(false);
           }} >Users</h2>
         </div>
         {showManageProduct &&
@@ -109,7 +113,18 @@ function Dashboard() {
                 vertical
                 placeholder='Name'
               />
-              {/* price */}
+              <div>
+                <div className='form-label'>Colors:</div>
+                <MultiSelect
+                  options={options}
+                  name="colors"
+                  value={selected}
+                  onChange={setSelected}
+                  labelledBy={"Select"}
+                  isCreatable={true}
+                  className="form-input"
+                />
+              </div>
               <FormRow
                 type='number'
                 name='price'
@@ -118,7 +133,6 @@ function Dashboard() {
                 vertical
                 placeholder='Price'
               />
-              {/* description */}
               <FormRow
                 type='name'
                 name='description'
@@ -134,12 +148,12 @@ function Dashboard() {
               <div>
                 <label htmlFor="company">Company <br /></label>
                 <select
-                  value={values.company}
+                  value={values.company || 'Handmade'}
                   id='company'
                   onChange={handleChange}
                   name="company"
-                  defaultValue="Handmade">
-                  <option value="Handmade" selected>Handmade</option>
+                >
+                  <option value="Handmade" >Handmade</option>
                   <option value="Handmade Pots" >Handmade Pots</option>
                   <option value="Handmade Bed & Bath">Handmade Bed & Bath</option>
                   <option value="Handmade Mugs">Handmade Mugs</option>
@@ -149,23 +163,21 @@ function Dashboard() {
                 <label htmlFor="category">Category <br /></label>
                 <select
                   name="category"
-                  value={values.category}
+                  value={values.category || 'home'}
                   onChange={handleChange}
-                  defaultValue="home"
                 >
-                  <option value="home" >home</option>
+                  <option value="home">home</option>
                   <option value="dining" >dining</option>
                   <option value="bedroom">bedroom</option>
                   <option value="living room">living room</option>
                 </select>
               </div>
-
               <div className='form-row'>
                 <label htmlFor="Featured">Featured ? <br /></label>
                 <input type="checkbox" name="featured" onClick={handleChange} />
               </div>
               <div>
-                <label for="freeShipping">Free Shipping ? <br /></label>
+                <label htmlFor="freeShipping">Free Shipping ? <br /></label>
                 <input type="checkbox" name="freeShipping" onClick={handleChange} />
               </div>
               <FormRow
@@ -175,6 +187,7 @@ function Dashboard() {
                 handleChange={handleChange}
                 vertical
                 placeholder='Inventory'
+                className="form-input"
               />
               <FormRow
                 type='number'
@@ -183,19 +196,25 @@ function Dashboard() {
                 handleChange={handleChange}
                 vertical
                 placeholder='Average Rating'
+                className="form-input"
               />
-
+              <FormRow
+                type='number'
+                name='stars'
+                value={values.stars}
+                handleChange={handleChange}
+                vertical
+                placeholder='Stars'
+              />
               <button type='submit' className='btn' disabled={isLoading}>
                 {isLoading ? 'Adding New Product...' : 'Add Product'}
               </button>
             </form>
             <Products />
           </>
-        } {showManageUser &&
-          <>
-
-            <User />
-          </>
+        }
+        {showManageUser &&
+          <User />
         }
       </Wrapper>
     </>
@@ -268,7 +287,6 @@ const Wrapper = styled.section`
          column-gap: 2rem;
     }
   }
-
    `;
 
 export default Dashboard;

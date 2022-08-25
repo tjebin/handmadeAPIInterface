@@ -20,7 +20,6 @@ const ProductColumns = () => {
   );
 };
 
-
 const WrapperColumn = styled.section`
   display: none;
   @media (min-width: 992px) {
